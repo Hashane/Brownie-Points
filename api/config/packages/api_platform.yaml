@@ -4,6 +4,10 @@ api_platform:
     # Mercure integration, remove if unwanted
     mercure:
         include_type: true
+    formats:
+        jsonld: ['application/ld+json']
+        json: ['application/json']
+        html: ['text/html']
     # Good defaults for REST APIs
     defaults:
         stateless: true
