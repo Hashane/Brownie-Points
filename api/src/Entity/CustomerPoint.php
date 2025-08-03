@@ -23,7 +23,7 @@ class CustomerPoint
     #[ORM\Column(length: 255)]
     private ?string $reason = null;
 
-    #[ORM\Column(type: 'int')]
+    #[ORM\Column(type: 'integer')]
     private ?int $referenceId = null;
 
     #[ORM\ManyToOne]

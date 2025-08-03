@@ -34,7 +34,7 @@ class Transaction
     #[ORM\Column]
     private ?int $pointsAwarded = null;
 
-    #[ORM\Column(type: 'int')]
+    #[ORM\Column(type: 'integer')]
     private ?int $referenceId = null;
 
     #[ORM\Column]
