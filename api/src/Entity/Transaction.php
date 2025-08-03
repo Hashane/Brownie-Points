@@ -25,7 +25,7 @@ class Transaction
     #[ORM\Column(length: 50)]
     private ?string $scanType = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(type:"text", length: 255, nullable: true)]
     private ?string $description = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
