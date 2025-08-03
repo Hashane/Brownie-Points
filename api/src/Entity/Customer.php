@@ -7,10 +7,15 @@ use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
+
 
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-#[ApiResource]
+#[ApiResource(
+    normalizationContext: ['groups' => ['customer:read']],
+    denormalizationContext: ['groups' => ['customer:write']]
+)]
 class Customer
 {
     #[ORM\Id]
@@ -19,45 +24,53 @@ class Customer
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['customer:read', 'customer:write'])]
     private ?string $name = null;
 
     #[ORM\Column(type: 'string', length: 180, unique: true)]
+    #[Groups(['customer:read', 'customer:write'])]
     private ?string $email = null;
 
     #[ORM\Column(type: 'string', length: 20, unique: true, nullable: true)]
+    #[Groups(['customer:read', 'customer:write'])]
     private ?string $phone = null;
 
-
     #[ORM\Column(length: 255, unique: true)]
+    #[Groups(['customer:read'])]
     private ?string $qrCode = null;
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $otpHash = null;
 
     #[ORM\Column]
+    #[Groups(['customer:read'])]
     private ?int $pointsBalance = null;
-
 
     #[ORM\ManyToOne(inversedBy: 'customers')]
     #[ORM\JoinColumn(nullable: false)]
+    #[Groups(['customer:read'])]
     private ?Tier $tier = null;
 
     /**
      * @var Collection<int, Redemption>
      */
     #[ORM\OneToMany(targetEntity: Redemption::class, mappedBy: 'customer')]
+    #[Groups(['customer:read'])]
     private Collection $redemptions;
 
     /**
      * @var Collection<int, CustomerPoint>
      */
     #[ORM\OneToMany(targetEntity: CustomerPoint::class, mappedBy: 'customer')]
+    #[Groups(['customer:read'])]
     private Collection $customerPoints;
 
     #[ORM\Column]
+    #[Groups(['customer:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     #[ORM\Column]
+    #[Groups(['customer:read'])]
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne]
