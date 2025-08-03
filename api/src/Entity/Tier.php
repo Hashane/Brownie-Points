@@ -7,7 +7,6 @@ use App\Repository\TierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Uid\Uuid;
 
 #[ORM\Entity(repositoryClass: TierRepository::class)]
 #[ApiResource]
@@ -16,7 +15,7 @@ class Tier
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
-    private ?Uuid $id = null;
+    private ?int $id = null;
 
     #[ORM\Column(length: 255)]
     private ?string $name = null;
@@ -45,17 +44,24 @@ class Tier
     #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: 'tier')]
     private Collection $customers;
 
+    /**
+     * @var Collection<int, PointRule>
+     */
+    #[ORM\OneToMany(targetEntity: PointRule::class, mappedBy: 'guestTier')]
+    private Collection $pointRules;
+
     public function __construct()
     {
         $this->customers = new ArrayCollection();
+        $this->pointRules = new ArrayCollection();
     }
 
-    public function getId(): ?Uuid
+    public function getId(): ?int
     {
         return $this->id;
     }
 
-    public function setId(Uuid $id): static
+    public function setId(int $id): static
     {
         $this->id = $id;
 
@@ -170,6 +176,36 @@ class Tier
             // set the owning side to null (unless already changed)
             if ($customer->getTier() === $this) {
                 $customer->setTier(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PointRule>
+     */
+    public function getPointRules(): Collection
+    {
+        return $this->pointRules;
+    }
+
+    public function addPointRule(PointRule $pointRule): static
+    {
+        if (!$this->pointRules->contains($pointRule)) {
+            $this->pointRules->add($pointRule);
+            $pointRule->setGuestTier($this);
+        }
+
+        return $this;
+    }
+
+    public function removePointRule(PointRule $pointRule): static
+    {
+        if ($this->pointRules->removeElement($pointRule)) {
+            // set the owning side to null (unless already changed)
+            if ($pointRule->getGuestTier() === $this) {
+                $pointRule->setGuestTier(null);
             }
         }
 
