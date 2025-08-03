@@ -7,6 +7,8 @@ use App\Repository\CustomerRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 
@@ -21,7 +23,7 @@ use Symfony\Component\Serializer\Attribute\Groups;
     normalizationContext: ['groups' => ['customer:read']],
     denormalizationContext: ['groups' => ['customer:write']]
 )]
-class Customer
+class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 {
     #[ORM\Id]
     #[ORM\GeneratedValue]
@@ -271,5 +273,25 @@ class Customer
         $this->updatedBy = $updatedBy;
 
         return $this;
+    }
+
+    public function getPassword(): ?string
+    {
+        return $this->otpHash;
+    }
+
+    public function getRoles(): array
+    {
+        return ['ROLE_CUSTOMER'];
+    }
+
+    public function eraseCredentials(): void
+    {
+        // If OTP or anything sensitive is stored temporarily, clear it here.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email ?? ''; // Must uniquely identify the user
     }
 }
