@@ -13,6 +13,11 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: CustomerRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 #[ApiResource(
+//    operations: [
+//        new Get(),         // GET /customers/{id}
+//        new Post(),        // POST /customers
+//        new Put(),         // PUT /customers/{id}
+//    ],
     normalizationContext: ['groups' => ['customer:read']],
     denormalizationContext: ['groups' => ['customer:write']]
 )]
@@ -35,7 +40,7 @@ class Customer
     #[Groups(['customer:read', 'customer:write'])]
     private ?string $phone = null;
 
-    #[ORM\Column(length: 255, unique: true)]
+    #[ORM\Column(length: 255, unique: true, nullable: true)]
     #[Groups(['customer:read'])]
     private ?string $qrCode = null;
 
