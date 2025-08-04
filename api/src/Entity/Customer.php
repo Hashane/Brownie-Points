@@ -81,8 +81,22 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $updatedAt = null;
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?User $updatedBy = null;
+    #[ORM\JoinColumn(nullable: true)]
+    private ?User $approvedBy = null;
+
+    #[ORM\Column(nullable: true)]
+    #[Groups(['customer:read'])]
+    private ?\DateTimeImmutable $approvedAt = null;
+
+    public function getApprovedAt(): ?\DateTimeImmutable
+    {
+        return $this->approvedAt;
+    }
+
+    public function setApprovedAt(?\DateTimeImmutable $approvedAt): void
+    {
+        $this->approvedAt = $approvedAt;
+    }
 
     public function __construct()
     {
@@ -263,14 +277,14 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getUpdatedBy(): ?User
+    public function getApprovedBy(): ?User
     {
-        return $this->updatedBy;
+        return $this->approvedBy;
     }
 
-    public function setUpdatedBy(?User $updatedBy): static
+    public function setApprovedBy(?User $updatedBy): static
     {
-        $this->updatedBy = $updatedBy;
+        $this->approvedBy = $updatedBy;
 
         return $this;
     }
@@ -294,4 +308,19 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->email ?? ''; // Must uniquely identify the user
     }
+
+    #[ORM\PrePersist]
+    public function onPrePersist(): void
+    {
+        $now = new \DateTimeImmutable();
+        $this->createdAt = $now;
+        $this->updatedAt = $now;
+    }
+
+    #[ORM\PreUpdate]
+    public function onPreUpdate(): void
+    {
+        $this->updatedAt = new \DateTimeImmutable();
+    }
+
 }
