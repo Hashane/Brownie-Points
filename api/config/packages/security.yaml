@@ -24,11 +24,11 @@ security:
         login_user:
             pattern: ^/api/login/user
             stateless: true
-            user_provider: users
             json_login:
                 check_path: /api/login/user
                 username_path: email
                 password_path: password
+                provider: users
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
@@ -36,18 +36,26 @@ security:
         login_customer:
             pattern: ^/api/login/customer
             stateless: true
-            user_provider: customers
             json_login:
                 check_path: /api/login/customer
                 username_path: email
-                password_path: otp
+                password_path: password
+                provider: customers
                 success_handler: lexik_jwt_authentication.handler.authentication_success
                 failure_handler: lexik_jwt_authentication.handler.authentication_failure
 
-        api:
-            pattern: ^/api
+        api_user:
+            pattern: ^/api/user
             stateless: true
-            jwt: ~  # enable JWT auth
+            provider: users
+            jwt: ~
+
+        # JWT protected API for customers
+        api_customer:
+            pattern: ^/api/customer
+            stateless: true
+            provider: customers
+            jwt: ~
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#the-firewall
