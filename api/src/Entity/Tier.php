@@ -3,13 +3,28 @@
 namespace App\Entity;
 
 use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Put;
 use App\Repository\TierRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: TierRepository::class)]
-#[ApiResource]
+#[ORM\HasLifecycleCallbacks]
+#[ApiResource(
+    operations: [
+        new GetCollection(),
+        new Get(),
+        new Post(),
+        new Put(),
+    ],
+    normalizationContext: ['groups' => ['tier:read']],
+    denormalizationContext: ['groups' => ['tier:write']]
+)]
 class Tier
 {
     #[ORM\Id]
@@ -18,36 +33,45 @@ class Tier
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?string $name = null;
 
     #[ORM\Column]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?int $minPointsRequired = null;
 
     #[ORM\Column]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?int $maxPointsAllowed = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?string $badgeIconUrl = null;
 
     #[ORM\Column(nullable: true)]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?array $perks = null;
 
     #[ORM\Column]
+    #[Groups(['tier:read', 'tier:write'])]
     private ?bool $active = null;
 
     #[ORM\Column]
+    #[Groups(['tier:read'])]
     private ?\DateTimeImmutable $createdAt = null;
 
     /**
      * @var Collection<int, Customer>
      */
     #[ORM\OneToMany(targetEntity: Customer::class, mappedBy: 'tier')]
+    #[Groups(['tier:read'])]
     private Collection $customers;
 
     /**
      * @var Collection<int, PointRule>
      */
     #[ORM\OneToMany(targetEntity: PointRule::class, mappedBy: 'guestTier')]
+    #[Groups(['tier:read'])]
     private Collection $pointRules;
 
     public function __construct()
@@ -138,11 +162,12 @@ class Tier
         return $this->createdAt;
     }
 
-    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    #[ORM\PrePersist] // This ensures the field is auto-filled only on creation, not updates.
+    public function setCreatedAtValue(): void
     {
-        $this->createdAt = $createdAt;
-
-        return $this;
+        if ($this->createdAt === null) {
+            $this->createdAt = new \DateTimeImmutable();
+        }
     }
 
     /**
