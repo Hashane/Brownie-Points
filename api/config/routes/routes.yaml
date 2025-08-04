@@ -1,0 +1,45 @@
+api_login_user:
+  path: /api/login/user
+  methods: [POST]
+  defaults:
+    _controller: api_platform.action.not_found
+    _api_resource_class: 'App\Entity\User'
+    _api_operation_name: 'post'
+    _api_receive: false
+    _api_respond: true
+    _swagger_context:
+      summary: 'Creates a user token.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required: [email, password]
+
+api_login_customer:
+  path: /api/login/customer
+  methods: [POST]
+  defaults:
+    _controller: api_platform.action.not_found
+    _api_resource_class: 'App\Entity\Customer'
+    _api_operation_name: 'post'
+    _api_receive: false
+    _api_respond: true
+    _swagger_context:
+      summary: 'Creates a customer token.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required: [email, password]
